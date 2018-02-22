@@ -1,13 +1,8 @@
 library(ggplot2)
 library(dplyr)
 library(reshape2)
-library(ggmap)
-library(rgdal)
-library(rgeos)
 library(maptools)
 library(tidyr)
-library(tmap)
-library(raster) #to read in shapefile
 library(sp)
 library(leaflet)
 
@@ -15,7 +10,7 @@ library(leaflet)
 setwd("/Users/xing/Documents/maps101")
 
 # import data (strip.white removes leading and trailing whitespace)
-dat1 <- read.csv("/Users/xing/Documents/maps101/data.csv", strip.white=TRUE)
+dat1 <- read.csv("/Users/xing/Documents/maps101/data.csv", strip.white = TRUE)
 
 # clean data
 dat1 <- subset(dat1, select = c("Name.in.English", "Countries", "Country.codes.alpha.3", "Degree.of.endangerment",
@@ -24,16 +19,16 @@ dat1 <- subset(dat1, select = c("Name.in.English", "Countries", "Country.codes.a
 names(dat1) <- c("language", "country", "country_code", "degree_endanger", "speakers", "lat", "long")
 
 # where number of speakers is 0, make degree endangered 'extinct'
-dat1$degree_endanger[dat1$speakers ==0] <- 'Extinct'
+dat1$degree_endanger[dat1$speakers == 0] <- 'Extinct'
 
 # disable scientific notation
 options(scipen = 999)
 
-# extract data on canada
+# extract data on north america
 namer <- dat1[dat1$country_code == "CAN" | dat1$country_code == "CAN, USA" | dat1$country_code == "USA" |
                 dat1$country_code == "MEX",]
 
-### using leaflet
+### make map using leaflet
 
 # relevel factors so that colors match and legend ordered correctly
 namer$degree_endanger <- factor(namer$degree_endanger, levels = c("Vulnerable", 
@@ -55,14 +50,4 @@ lang_map <- m %>% addProviderTiles("CartoDB.Positron", options = providerTileOpt
                    color = ~pal(degree_endanger)) %>%
   addLegend("topright", pal = pal, values = ~degree_endanger,
             title = "Degree Endangered", opacity = 0.6)
-
-
-#### load world map using ggplot2  ###
-# worldmap <- borders("world", colour="gray50", fill="gray") # create a layer of borders
-# 
-# ggplot() + worldmap +
-#   geom_point(data = nafta, 
-#              aes(x = long, y = lat,
-#                  color = degree_endanger)) +
-#   theme_nothing(legend = TRUE)
 
